@@ -67,7 +67,7 @@ int main()
         param.layer = 128;    //On top of most things
 
         param.set |= MMAL_DISPLAY_SET_ALPHA;
-        param.layer = 0;    //0 = opaque, 255 = transparent IIRC
+        param.alpha = 255;    //0 = transparent, 255 = opaque
 
         param.set |= (MMAL_DISPLAY_SET_DEST_RECT | MMAL_DISPLAY_SET_FULLSCREEN);
         param.fullscreen = 0;
