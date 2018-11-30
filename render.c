@@ -20,6 +20,36 @@
 #define WIDTH  128
 #define HEIGHT 128
 
+#define MAX_ENCODINGS_NUM 25
+typedef struct {
+   MMAL_PARAMETER_HEADER_T header;
+   MMAL_FOURCC_T encodings[MAX_ENCODINGS_NUM];
+} MMAL_SUPPORTED_ENCODINGS_T;
+
+
+int print_supported_formats(MMAL_PORT_T *port)
+{
+   MMAL_STATUS_T ret;
+
+   MMAL_SUPPORTED_ENCODINGS_T sup_encodings = {{MMAL_PARAMETER_SUPPORTED_ENCODINGS, sizeof(sup_encodings)}, {0}};
+   ret = mmal_port_parameter_get(port, &sup_encodings.header);
+   if (ret == MMAL_SUCCESS || ret == MMAL_ENOSPC)
+   {
+      //Allow ENOSPC error and hope that the desired formats are in the first
+      //MAX_ENCODINGS_NUM entries.
+      int i;
+      int num_encodings = (sup_encodings.header.size - sizeof(sup_encodings.header)) /
+          sizeof(sup_encodings.encodings[0]);
+      if(num_encodings > MAX_ENCODINGS_NUM)
+         num_encodings = MAX_ENCODINGS_NUM;
+      for (i=0; i<num_encodings; i++)
+      {
+         printf("%u: %4.4s\n", i, (char*)&sup_encodings.encodings[i]);
+      }
+   }
+   return 0;
+}
+
 static void callback_vr_input(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffer)
 {
     mmal_buffer_header_release(buffer);
@@ -35,6 +65,8 @@ int main()
 
     mmal_component_create("vc.ril.video_render", &render);
     input = render->input[0];
+
+    print_supported_formats(input);
 
     input->format->encoding = ENCODING;
     input->format->es->video.width  = VCOS_ALIGN_UP(WIDTH,  32);
