@@ -47,6 +47,8 @@ int main()
 
     mmal_component_enable(render);
 
+    mmal_port_parameter_set_boolean(input, MMAL_PARAMETER_ZERO_COPY, MMAL_TRUE);
+
     input->buffer_size = input->buffer_size_recommended;
     input->buffer_num = input->buffer_num_recommended;
     if (input->buffer_num < 2)
